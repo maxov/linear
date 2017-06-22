@@ -1,5 +1,7 @@
 package linear
 
+import linear.types.Dim
+
 import scala.annotation.implicitNotFound
 
 @implicitNotFound("The given spaces ${V} and ${W} are not isomorphic -- perhaps they have different dimensions?")

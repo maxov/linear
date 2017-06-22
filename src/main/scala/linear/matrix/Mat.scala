@@ -1,4 +1,6 @@
-package linear
+package linear.matrix
+
+import linear.types.Dim
 
 /**
  *

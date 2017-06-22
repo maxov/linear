@@ -2,6 +2,7 @@ package linear.matrix
 
 import linear.OrdSet.ofDim
 import linear._
+import linear.types.{Dim, DimVal}
 
 trait RowSpace extends Space {
 
@@ -37,12 +38,14 @@ trait RowSpace extends Space {
     def +(that: V): V = plus(v, that)
   }
 
+  override def toString = s"R^(1x${dimV.value})"
+
 }
 
 object RowSpace {
   type ofDim[Di <: Dim] = RowSpace { type D = Di }
-  def apply[Di <: Dim](implicit dv: DimVal[Di]): ofDim[Di] = new RowSpace {
+  def apply[Di <: Dim : DimVal]: ofDim[Di] = new RowSpace {
     type D = Di
-    def dimV: DimVal[Di] = dv
+    def dimV: DimVal[Di] = implicitly[DimVal[D]]
   }
 }

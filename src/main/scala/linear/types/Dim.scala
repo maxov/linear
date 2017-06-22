@@ -1,13 +1,20 @@
-package linear
+package linear.types
 
-import linear.types.Rec
-
+/**
+ * Represents a type-level natural number.
+ */
 sealed trait Dim {
-  type Build[A, R <: Rec[A]] <: A
-}
 
-trait DimVal[D <: Dim] {
-  def value: Int
+  /**
+   * Defines at the type-level, the type resulting from applying [[R]] this number of times.
+   *
+   * @see [[Rec]]
+   *
+   * @tparam A The resulting type
+   * @tparam R A [[Rec]] representing how [[A]] can be repeatedly constructing
+   */
+  type Build[A, R <: Rec[A]] <: A
+
 }
 
 object Dim {
@@ -31,14 +38,13 @@ object Dim {
   type _9 = Succ[_8]
   type _10 = Succ[_9]
 
-  implicit object Zero extends DimVal[_0] {
-    def value = 0
-  }
-
-  implicit def Succ[D <: Dim](implicit prev: DimVal[D]): DimVal[Succ[D]] = new DimVal[Succ[D]] {
-    override def value: Int = prev.value + 1
-  }
-
+  /**
+   * Get the integer value of the given type-level natural
+   *
+   * @param v The implicit evidence for [[D]]'s integer value
+   * @tparam D The type-level natural
+   * @return An integer representing the value of
+   */
   def v[D <: Dim](implicit v: DimVal[D]): Int = v.value
 
 }

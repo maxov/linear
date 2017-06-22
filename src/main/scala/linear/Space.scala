@@ -1,5 +1,7 @@
 package linear
 
+import linear.types.Dim
+
 trait Vector {
   type D <: Dim
 }
