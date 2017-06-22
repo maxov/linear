@@ -1,17 +1,24 @@
 package linear.matrix
 
-import linear.OrdSet.ofDim
 import linear._
 import linear.types.{Dim, DimVal}
+
+case class RowVector[D <: Dim](ordSet: OrdSet.ofDim[Double, D]) extends Vector {
+  override def toString: String = ordSet.values.mkString("(", ", ", ")")
+}
+
+object RowVector {
+  private[matrix] def unsafe[D <: Dim](ordSet: OrdSet[Double]): RowVector[D] = RowVector(ordSet.asInstanceOf[OrdSet.ofDim[Double, D]])
+}
 
 trait RowSpace extends Space {
 
   implicit def dimV: DimVal[D]
 
   type D <: Dim
-  type V = OrdSet.ofDim[Double, D]
+  type V = RowVector[D]
 
-  def zero: V = OrdSet.fill[Double, D](0)
+  def zero: V = RowVector.unsafe(OrdSet.fill[Double, D](0))
 
   private[RowSpace] def unsafePlus(v1: OrdSet[Double], v2: OrdSet[Double]): OrdSet[Double] = (v1, v2) match {
     case (Empty, Empty) => Empty
@@ -24,8 +31,8 @@ trait RowSpace extends Space {
     case (a1 %: r1) => (a1 * k) %: unsafeScal(r1, k)
   }
 
-  def plus(v1: V, v2: V): V = unsafePlus(v1, v2).asInstanceOf[V]
-  def scale(v: V, k: Double): V = unsafeScal(v, k).asInstanceOf[V]
+  def plus(v1: V, v2: V): V = RowVector.unsafe(unsafePlus(v1.ordSet, v2.ordSet))
+  def scale(v: V, k: Double): V = RowVector.unsafe(unsafeScal(v.ordSet, k))
 
   trait Ops extends super.Ops {
     def *(that: Double): V

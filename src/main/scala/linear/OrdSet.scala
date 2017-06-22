@@ -40,7 +40,7 @@ sealed trait OrdSet[+T] {
 
   def values: List[T]
 
-  override def toString = values.mkString("(", ", ", ")")
+  override def toString = values.mkString("ord{", ", ", "}")
 
 }
 
