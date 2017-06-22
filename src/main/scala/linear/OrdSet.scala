@@ -9,34 +9,36 @@ case object Empty extends OrdSet[Nothing] {
   type Length = Dim._0
 }
 
-case class %:[+T, R <: OrdSet[T]](head: T, tail: R) extends OrdSet[T] {
-  type Length = Dim.Succ[R#Length]
+case class %:[+T, +R <: OrdSet[T]](head: T, tail: R) extends OrdSet[T] {
+  type Length = Dim.Succ[tail.Length]
 }
 
 trait LengthProofs {
 
-  trait Concrete[A <: OrdSet[_], B <: OrdSet[_]] {
-    def take(a: A): B = _
-  }
+  case class Concrete[A, B]()
 
-  /**
-    * FAKE!!!
-    */
-  private[LengthProofs] object Concrete {
-    def apply[A <: OrdSet[_], B <: OrdSet[_]] = new Concrete[A, B] {}
-  }
+  implicit def OIEmpty[T]: Concrete[OrdSet.ofDim[T, Dim._0], Empty.type] = Concrete()
+  //implicit def one[T]: Concrete[OrdSet.ofDim[T, Dim._1], T %: Empty.type] = OIRec
+  implicit def OIRec[T, R <: OrdSet[T], D <: Dim](implicit that: Concrete[OrdSet.ofDim[T, D], R]
+                                                 ): Concrete[OrdSet.ofDim[T, Dim.Succ[D]], T %: R] =
+    Concrete()
 
-  implicit def OIEmpty[T]: Concrete[OrdSet.ofDim[T, Dim._0], Empty.type] = Concrete.apply
-  implicit def OIRec[T, R <: OrdSet[T], D <: Dim]
-  (implicit that: Concrete[OrdSet.ofDim[T, D], R]): Concrete[OrdSet.ofDim[T, Dim.Succ[D]], T %: R] =
-    Concrete.apply
-
-  implicit def finalConversion[A <: OrdSet[_], B <: OrdSet[_]](t: A)(implicit f: Concrete[A, B]): B = f.take(t)
+  implicit def finalConversion[A, B](t: A)(implicit f: Concrete[A, B]): B = t.asInstanceOf[B]
 
 }
 
 object OrdSet extends LengthProofs {
-  type ofDim[+T, D <: Dim] = OrdSet[T] { type Length <: D }
+  type ofDim[+T, D <: Dim] = OrdSet[T] { type Length = D }
 
-  def take2(x: OrdSet.ofDim[Int, Dim._2]): Int = OrdSet.finalConversion(x).head
+  val x: ofDim[Int, Dim._2] = 2 %: 3 %: Empty
+
+  implicitly[Concrete[OrdSet.ofDim[Int, linear.Dim._0], _]]
+
+
+
+  implicitly[Concrete[OrdSet.ofDim[Int, linear.Dim._1], _]]
+
+  implicitly[Concrete[ofDim[Int,Dim._2],_]]
+
+  //def take2(x: OrdSet.ofDim[Int, Dim._2]): Int = OrdSet.finalConversion(x).head
 }

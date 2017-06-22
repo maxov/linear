@@ -18,6 +18,6 @@ class Space { space =>
 
 object Space {
 
-  type ofDim[Di <: Dim] = Space { type Di <: Dim }
+  type ofDim[Di <: Dim] = Space { type Di = Dim }
 
 }
