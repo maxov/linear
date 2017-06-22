@@ -6,11 +6,11 @@ trait Vector {
 
 trait Space { space =>
 
+  implicit def dimV: DimVal[D]
+
   type D <: Dim
 
-  type V <: Vector {
-    type D <: space.D
-  }
+  type V <: Vector
 
   def zero: V
 

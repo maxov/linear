@@ -3,6 +3,7 @@ package linear
 import linear.types.Rec
 
 import language.higherKinds
+import scala.annotation.unchecked.uncheckedVariance
 
 sealed trait OrdSet[+T] extends Vector {
   type Length <: Dim
@@ -23,7 +24,7 @@ case class %:[+T, +R <: OrdSet[T]](head: T, tail: R) extends OrdSet[T] {
 }
 
 object OrdSet  {
-  type ofDim[+T, Di <: Dim] = OrdSet[T] { type Length = Di }
+  type ofDim[@uncheckedVariance T, Di <: Dim] = Di#Build[OrdSet[T], R[T]]
   type R[T] = Rec[OrdSet[T]] {
     type Base = Empty.type
     type Succ[X <: OrdSet[T]] = T %: X
@@ -34,6 +35,6 @@ object OrdSet  {
     case n => v %: fillUnsafe(v, n - 1)
   }
 
-  def fill[T, Di <: Dim](v: T)(implicit dv: DimVal[Di]): Di#Build[OrdSet[T], R[T]] =
+  def fill[T, Di <: Dim](v: T)(implicit dv: DimVal[Di]): ofDim[T, Di] =
     fillUnsafe(v, dv.value).asInstanceOf[Di#Build[OrdSet[T], R[T]]]
 }
