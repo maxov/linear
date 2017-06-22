@@ -4,7 +4,7 @@ trait Vector {
   type D <: Dim
 }
 
-class Space { space =>
+trait Space { space =>
 
   type D <: Dim
 
@@ -12,7 +12,7 @@ class Space { space =>
     type D <: space.D
   }
 
-  type VSet
+  def zero: V
 
 }
 

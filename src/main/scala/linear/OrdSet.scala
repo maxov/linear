@@ -1,44 +1,28 @@
 package linear
 
-sealed trait OrdSet[+T] {
+import language.higherKinds
+
+sealed trait OrdSet[+T] extends Vector {
+  type ThisWith[A] <: OrdSet.ofDim[A, Length]
   type Length <: Dim
+  type D = Length
   def %:[V >: T](head: V): %:[V, this.type] = new %:(head, this)
+  def map[B](f: T => B): ThisWith[B]
+  def mat[R, D <: Dim](implicit ev: T <:< OrdSet.ofDim[R, D]): Mat[R, Length, D] = null
 }
 
 case object Empty extends OrdSet[Nothing] {
+  type ThisWith[B] = Empty.type
   type Length = Dim._0
+  def map[B](f: Nothing => B): ThisWith[B] = this
 }
 
 case class %:[+T, +R <: OrdSet[T]](head: T, tail: R) extends OrdSet[T] {
+  type ThisWith[B] = B %: tail.ThisWith[B]
   type Length = Dim.Succ[tail.Length]
+  def map[B](f: T => B): ThisWith[B] = f(head) %: tail.map(f)
 }
 
-trait LengthProofs {
-
-  case class Concrete[A, B]()
-
-  implicit def OIEmpty[T]: Concrete[OrdSet.ofDim[T, Dim._0], Empty.type] = Concrete()
-  //implicit def one[T]: Concrete[OrdSet.ofDim[T, Dim._1], T %: Empty.type] = OIRec
-  implicit def OIRec[T, R <: OrdSet[T], D <: Dim](implicit that: Concrete[OrdSet.ofDim[T, D], R]
-                                                 ): Concrete[OrdSet.ofDim[T, Dim.Succ[D]], T %: R] =
-    Concrete()
-
-  implicit def finalConversion[A, B](t: A)(implicit f: Concrete[A, B]): B = t.asInstanceOf[B]
-
-}
-
-object OrdSet extends LengthProofs {
-  type ofDim[+T, D <: Dim] = OrdSet[T] { type Length = D }
-
-  val x: ofDim[Int, Dim._2] = 2 %: 3 %: Empty
-
-  implicitly[Concrete[OrdSet.ofDim[Int, linear.Dim._0], _]]
-
-
-
-  implicitly[Concrete[OrdSet.ofDim[Int, linear.Dim._1], _]]
-
-  implicitly[Concrete[ofDim[Int,Dim._2],_]]
-
-  //def take2(x: OrdSet.ofDim[Int, Dim._2]): Int = OrdSet.finalConversion(x).head
+object OrdSet  {
+  type ofDim[+T, Di <: Dim] = OrdSet[T] { type Length = Di }
 }
