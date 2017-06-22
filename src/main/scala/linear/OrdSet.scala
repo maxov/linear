@@ -34,7 +34,7 @@ sealed trait OrdSet[+T] {
    * @tparam B
    * @return
    */
-  def map[B](f: T => B): Length#Build[OrdSet[B], OrdSet.Rec[B]]
+  def map[B](f: T => B): Length#Build[OrdSet[B], OrdSet.R[B]]
 
   def mat[R, D <: Dim](implicit ev: T <:< OrdSet.ofDim[R, D]): Mat[R, Length, D] = null
 
@@ -53,8 +53,8 @@ case object Empty extends OrdSet[Nothing] {
 case class %:[+T, +R <: OrdSet[T]](head: T, tail: R) extends OrdSet[T] {
   type Length = Dim.Succ[tail.Length]
   def values: List[T] = head :: tail.values
-  def map[B](f: T => B): Length#Build[OrdSet[B], OrdSet.Rec[B]] =
-    (f(head) %: tail.map[B](f)).asInstanceOf[Length#Build[OrdSet[B], OrdSet.Rec[B]]]
+  def map[B](f: T => B): Length#Build[OrdSet[B], OrdSet.R[B]] =
+    (f(head) %: tail.map[B](f)).asInstanceOf[Length#Build[OrdSet[B], OrdSet.R[B]]]
 }
 
 object OrdSet {
@@ -64,7 +64,7 @@ object OrdSet {
    *
    * @tparam T The type of the build set
    */
-  type Rec[T] = Rec[OrdSet[T]] {
+  type R[T] = Rec[OrdSet[T]] {
 
     /**
      * @inheritdoc
@@ -84,7 +84,7 @@ object OrdSet {
    * @tparam T The type contained in ordered sets
    * @tparam Di The dimension of the ordered set
    */
-  type ofDim[T, Di <: Dim] = Di#Build[OrdSet[T], Rec[T]]
+  type ofDim[T, Di <: Dim] = Di#Build[OrdSet[T], R[T]]
 
   private[OrdSet] def fillUnsafe[T](v: T, number: Int): OrdSet[T] = number match {
     case 0 => Empty

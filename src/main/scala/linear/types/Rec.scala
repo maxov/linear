@@ -2,7 +2,7 @@ package linear.types
 
 /**
  * Represents how to recursively build a type [[A]]
- * @see [[linear.OrdSet.Rec]] for example
+ * @see [[linear.OrdSet.R]] for example
  *
  * @tparam A The resultant type
  */
